@@ -1,5 +1,6 @@
 package com.xgh.app.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,6 +64,12 @@ class UploadActivity : AppCompatActivity() {
         }
 
         binding.btnBack.setOnClickListener { finish() }
+        binding.btnCorrect.setOnClickListener {
+            correctLauncher.launch(
+                Intent(this, CorrectionActivity::class.java)
+                    .putExtra(CorrectionActivity.EXTRA_INSPECTION_ID, lastRecordId)
+            )
+        }
         binding.btnSubmit.setOnClickListener { submit() }
     }
 
@@ -118,9 +125,14 @@ class UploadActivity : AppCompatActivity() {
                     ) as UploadPhotoResponse
                     renderResult(resp)
                     Ui.toast(this@UploadActivity, getString(R.string.submit_ok))
-                    // 留 1 秒展示 AI 徽标与名单命中数，然后自动返回主页
-                    delay(1000)
-                    finish()
+                    // 有 AI 结果时停留展示（可进入修正），纯文本/无结果 1 秒后自动返回
+                    if (resp.structured_result != null || resp.vision_analysis != null) {
+                        binding.btnSubmit.text = "已完成，可核对修正后返回"
+                        resetUi()
+                    } else {
+                        delay(1000)
+                        finish()
+                    }
                     return@launch
                 } catch (e: retrofit2.HttpException) {
                     // 业务错误（400/409 等）重试无意义，直接提示
@@ -140,21 +152,50 @@ class UploadActivity : AppCompatActivity() {
         }
     }
 
+    private var lastRecordId: Long = 0
+
+    private val correctLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == CorrectionActivity.RESULT_CORRECTED) {
+                binding.tvAiStatus.append("\n✅ 已提交人工修正，副部长打表时将采用修正后的结果")
+            }
+        }
+
     private fun renderResult(resp: UploadPhotoResponse) {
+        lastRecordId = resp.record?.id ?: 0L
         val text = when (resp.ai_status) {
             "real" -> getString(R.string.ai_real)
             "failed" -> getString(R.string.ai_failed)
+            "unknown" -> getString(R.string.ai_unknown)
             else -> getString(R.string.ai_disabled)
         }
         binding.tvAiStatus.visibility = View.VISIBLE
         binding.tvAiStatus.text = buildString {
             append(text)
+            val st = resp.structured_result
+            if (st != null) {
+                st.summary?.takeIf { it.isNotBlank() }?.let { append("\n识别摘要：$it") }
+                val sev = when (st.severity) {
+                    "low" -> "轻微"; "medium" -> "中等"; "high" -> "严重"; "critical" -> "重大"
+                    else -> null
+                }
+                val suggest = listOfNotNull(
+                    st.category?.takeIf { it.isNotBlank() },
+                    sev,
+                    (st.deduct_points ?: 0).takeIf { it > 0 }?.let { "建议扣 ${it} 分" }
+                ).joinToString(" · ")
+                if (suggest.isNotEmpty()) append("\n建议：$suggest")
+                st.action_advice?.takeIf { it.isNotBlank() }?.let { append("\n处理建议：$it") }
+            }
             val total = resp.subject_total ?: 0
             if (total > 0) {
                 append("\n")
                 append(getString(R.string.subjects_matched, resp.subject_matched ?: 0, total))
             }
+            append("\n（AI 结果仅供参考，请人工核对；副部长打表前可再次修正）")
         }
+        binding.btnCorrect.visibility =
+            if (resp.record != null) View.VISIBLE else View.GONE
     }
 
     private fun String.toPlain() = this.toRequestBody("text/plain".toMediaType())

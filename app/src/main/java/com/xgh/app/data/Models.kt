@@ -84,10 +84,13 @@ data class InspectionPhoto(
     val report_kind: String?,
     val note_text: String?,
     val ai_status: String?,
+    val vision_ai_output: String?,
+    val structured_json: String?,
     val category: String?,
     val deduct_points: Int?,
     val severity: String?,
     val status: String?,
+    val review_note: String?,
     val created_at: String?
 )
 
@@ -100,17 +103,43 @@ data class StructuredResult(
     val category: String?,
     val severity: String?,
     val deduct_points: Int?,
-    val summary: String?
+    val summary: String?,
+    val action_advice: String?
 )
 
 data class UploadPhotoResponse(
     val message: String?,
     val record: InspectionPhoto?,
     val ai_status: String?,
+    val vision_analysis: String?,
     val structured_result: StructuredResult?,
     val subject_total: Int?,
     val subject_matched: Int?,
     val subject_unmatched: Int?
+)
+
+data class InspectionSubject(
+    val id: Long,
+    val raw_name: String?,
+    val match_status: String?,
+    val match_note: String?
+)
+
+data class InspectionDetailResponse(
+    val record: InspectionPhoto?,
+    val subjects: List<InspectionSubject>?,
+    val structured: StructuredResult?
+)
+
+/** 修正请求：仅传变化字段；severity ∈ low/medium/high/critical；deduct_points 0-30 */
+data class InspectionCorrectionRequest(
+    val vision_analysis: String? = null,
+    val category: String? = null,
+    val severity: String? = null,
+    val deduct_points: Int? = null,
+    val summary: String? = null,
+    val action_advice: String? = null,
+    val reason: String
 )
 
 data class ApiError(

@@ -174,10 +174,24 @@
         <TextView
             android:id="@+id/tvAiStatus"
             style="@style/TextSub"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:lineSpacingExtra="4dp"
+            android:padding="12dp"
             android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCorrect"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="人工核对修正"
+            android:textSize="17sp"
+            android:visibility="gone"
+            app:cornerRadius="4dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmit"

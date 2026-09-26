@@ -11,6 +11,7 @@ import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
 
@@ -45,6 +46,15 @@ interface XghApi {
         @Query("category") category: String?,
         @Query("severity") severity: String?
     ): InspectionsResponse
+
+    @GET("/api/v1/dorm/inspections/{id}")
+    suspend fun inspectionDetail(@Path("id") id: Long): InspectionDetailResponse
+
+    @POST("/api/v1/dorm/inspections/{id}/correct")
+    suspend fun correctInspection(
+        @Path("id") id: Long,
+        @Body body: InspectionCorrectionRequest
+    ): UploadPhotoResponse
 }
 
 /**

@@ -26,6 +26,7 @@
         <activity android:name=".ui.HomeActivity" android:exported="false" />
         <activity android:name=".ui.UploadActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.HistoryActivity" android:exported="false" />
+        <activity android:name=".ui.CorrectionActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.SettingsActivity" android:exported="false" />
 
         <provider

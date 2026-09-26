@@ -40,7 +40,16 @@
     <string name="ai_disabled">未启用 AI，需人工核对</string>
     <string name="ai_failed">AI 识别失败，需人工核对</string>
     <string name="ai_real">AI 识别完成，仍需人工核对后打表</string>
+    <string name="ai_unknown">AI 状态未知，需人工核对</string>
     <string name="subjects_matched">名单匹配：%1$d/%2$d 人命中名册</string>
+
+    <!-- 人工修正 -->
+    <string name="correct_title">人工核对修正</string>
+    <string name="correct_submit">提交修正</string>
+    <string name="correct_need_reason">请填写修正原因（留痕审计必需）</string>
+    <string name="correct_points_range">扣分需在 0-30 分之间</string>
+    <string name="correct_no_change">没有任何修改，无需提交</string>
+    <string name="correct_ok">修正已提交并留痕</string>
 
     <!-- 历史 -->
     <string name="history_title">历史上报</string>
